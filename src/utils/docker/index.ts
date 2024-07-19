@@ -18,10 +18,27 @@ export const installDocker = () => {
   }
 };
 
-export const setupDocker = () => {
+export const setupDocker = (containerName: string) => {
   shell.exec('docker pull johnsonchasm/chasm-scout');
   shell.exec(
-    'docker run -d --restart=always --env-file ./.env -p 3001:3001 --name scout johnsonchasm/chasm-scout'
+    `docker run -d --restart=always --env-file ./.env -p 3001:3001 --name ${containerName} johnsonchasm/chasm-scout`
   );
   console.log('Docker container has been set up successfully.');
+};
+
+export const isContainerNameInUse = (
+  containerName: string
+): boolean => {
+  const result = shell.exec(
+    `docker ps -a --filter "name=${containerName}" --format "{{.Names}}"`,
+    { silent: true }
+  );
+  return result.stdout.trim() === containerName;
+};
+
+export const removeDockerContainer = (containerName: string) => {
+  shell.exec(`docker rm -f ${containerName}`);
+  console.log(
+    `Removed existing Docker container with name ${containerName}`
+  );
 };

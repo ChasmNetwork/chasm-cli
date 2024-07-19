@@ -7,7 +7,20 @@ import fs from 'fs';
 import path from 'path';
 import { abi as ScoutABI } from '../../abi/ChasmScout.abi.js';
 
-// Function to import JSON file with path resolution
+dotenv.config();
+
+export const provider = await EthereumProvider.init({
+  projectId: process.env.PROJECT_ID!,
+  metadata: {
+    name: 'Chasm CLI',
+    description: 'CLI for Chasm Node',
+    url: 'https://scout.chasm.net',
+    icons: ['https://www.chasm.net/logo.png'],
+  },
+  showQrModal: false,
+  optionalChains: [1, 56, 5000],
+});
+
 function importJsonFile(filePath: string): object {
   const absolutePath = path.resolve(__dirname, filePath);
   const fileContent = fs.readFileSync(absolutePath, 'utf-8');
@@ -19,23 +32,9 @@ function importJsonFile(filePath: string): object {
   }
 }
 
-// Adjust the path to ChasmScout.json based on the current directory
-// const ScoutABI = importJsonFile('../../abi/ChasmScout.json');
 dotenv.config();
 
 export const connectWallet = async () => {
-  const provider = await EthereumProvider.init({
-    projectId: process.env.PROJECT_ID!, // Get your project ID at https://cloud.walletconnect.com
-    metadata: {
-      name: 'Chasm CLI',
-      description: 'CLI for Chasm Node',
-      url: 'https://scout.chasm.net', // Make sure this matches your actual domain
-      icons: ['https://www.chasm.net/logo.png'],
-    },
-    showQrModal: false,
-    optionalChains: [1, 56, 5000],
-  });
-
   return new Promise((resolve, reject) => {
     provider.on('display_uri', (uri) => {
       qrcode.generate(uri, { small: true }, (qrcode) => {
