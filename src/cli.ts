@@ -208,7 +208,7 @@ const setupScout = async () => {
     await setupEnvFile(UID, api_key);
 
     let containerName = `scout-${UID}`;
-    if (isContainerNameInUse(containerName)) {
+    if (await isContainerNameInUse(containerName)) {
       const removeContainer = await confirm({
         message: `Container with name "${containerName}" already exists. Would you like to remove it?`,
         default: true,
