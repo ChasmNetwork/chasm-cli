@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import os from 'os';
 
 const checkCurlInstallation = (): boolean => {
   try {
@@ -40,9 +41,20 @@ export const isPortInUse = (port: number): boolean => {
 };
 
 export const stopProcessOnPort = (port: number): void => {
+  const platform = os.platform();
+
   try {
-    execSync(`fuser -k ${port}/tcp`);
-    console.log(`Stopped process on port ${port}`);
+    if (platform === 'linux' || platform === 'darwin') {
+      const pid = execSync(`lsof -t -i:${port}`).toString().trim();
+      if (pid) {
+        execSync(`kill -9 ${pid}`);
+        console.log(`Stopped process on port ${port}`);
+      }
+    } else {
+      console.error(
+        `Stopping process on port ${port} is not supported on this platform.`
+      );
+    }
   } catch (error) {
     console.error(`Error stopping process on port ${port}:`, error);
   }

@@ -2,15 +2,13 @@ import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import axios from 'axios';
 import qrcode from 'qrcode-terminal';
 import { Web3, ContractAbi } from 'web3';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { abi as ScoutABI } from '../../abi/ChasmScout.abi.js';
-
-dotenv.config();
+import { config } from '../../config.js';
 
 export const provider = await EthereumProvider.init({
-  projectId: process.env.PROJECT_ID!,
+  projectId: config.PROJECT_ID!,
   metadata: {
     name: 'Chasm CLI',
     description: 'CLI for Chasm Node',
@@ -31,8 +29,6 @@ function importJsonFile(filePath: string): object {
     throw new Error(`Error parsing JSON file: ${error.message}`);
   }
 }
-
-dotenv.config();
 
 export const connectWallet = async () => {
   return new Promise((resolve, reject) => {
@@ -58,11 +54,11 @@ export const connectWallet = async () => {
 
 export const fetchNFTs = async (address: string) => {
   const web3 = new Web3(
-    `https://mantle-mainnet.infura.io/v3/${process.env.INFURA_KEY}`
+    `https://mantle-mainnet.infura.io/v3/${config.INFURA_KEY}`
   );
   const contract = new web3.eth.Contract(
     ScoutABI as ContractAbi,
-    process.env.CONTRACT
+    config.CONTRACT
   );
 
   const balance = Number(

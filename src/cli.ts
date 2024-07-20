@@ -3,13 +3,8 @@
 import { Command } from 'commander';
 import { confirm, input, select } from '@inquirer/prompts';
 import chalk from 'chalk';
-import shell from 'shelljs';
-import figlet from 'figlet';
 import fs from 'fs';
 import path from 'path';
-import Web3 from 'web3';
-import axios from 'axios';
-import dotenv from 'dotenv';
 import {
   checkDockerInstallation,
   installDocker,
@@ -29,9 +24,11 @@ import {
   isPortInUse,
   stopProcessOnPort,
 } from './utils/network.js';
-// import localIpAddress from 'local-ip-address';
-
-dotenv.config();
+import {
+  installLocalTunnel,
+  startLocalTunnel,
+} from './utils/local.js';
+import { config } from './config.js';
 
 const program = new Command();
 
@@ -70,6 +67,7 @@ const mainMenu = async () => {
   const choices = [
     { name: 'Setup new scout', value: 'setup' },
     { name: 'View my scout', value: 'view' },
+    { name: 'Exit', value: 'exit' },
   ];
 
   const selectedOption = await select({
@@ -112,25 +110,35 @@ const setupEnvFile = async (
     }
   }
 
+  let webhookURL = `http://localhost:${port}`;
   const ipAddress = getPublicIPAddress();
+
+  const isLocal = await confirm({
+    message: 'Are you setting this up on a local computer?',
+    default: true,
+  });
+
+  if (isLocal) {
+    installLocalTunnel();
+    const localTunnelURL = await startLocalTunnel(port);
+    webhookURL = localTunnelURL;
+  } else {
+    const ipAddress = getPublicIPAddress();
+    webhookURL = await input({
+      message: `Enter webhook URL (e.g. http://${ipAddress}:${port}):`,
+      default: `http://${ipAddress}:${port}`,
+    });
+  }
 
   const answers = {
     PORT: port,
+    NODE_ENV: isLocal ? 'local' : 'production',
     LOGGER_LEVEL: 'debug',
-    ORCHESTRATOR_URL: 'https://orchestrator.chasm.net',
+    ORCHESTRATOR_URL: 'https://orchestrator.chasm.net/',
     SCOUT_NAME: await input({ message: 'Enter scout name:' }),
     SCOUT_UID: scoutUID,
     WEBHOOK_API_KEY: webhookApiKey,
-    // SCOUT_UID: await input({
-    //   message: `Enter scout UID (Get here: ${scoutUidLink} ):`,
-    // }),
-    // WEBHOOK_API_KEY: await input({
-    //   message: `Enter webhook API key (Get here: ${webhookApiKeyLink} ):`,
-    // }),
-    WEBHOOK_URL: await input({
-      message: `Enter webhook URL (e.g. http://your-ip:${port}):`,
-      default: `http://${ipAddress}:${port}`,
-    }),
+    WEBHOOK_URL: webhookURL,
     PROVIDERS: await input({
       message: 'Enter providers:',
       default: 'groq',
@@ -151,24 +159,29 @@ const setupEnvFile = async (
   const envContent = Object.entries(answers)
     .map(([key, value]) => `${key}=${value}`)
     .join('\n');
-  fs.writeFileSync(path.join(process.cwd(), '.env'), envContent);
+  fs.writeFileSync(
+    path.join(process.cwd(), '.env.scout'),
+    envContent
+  );
   console.log('.env file has been created successfully.');
 };
 
 const setupScout = async () => {
   try {
-    const spinner = ora('Connecting wallet...').start();
     const wallets: any = await connectWallet();
+    const spinner = ora('Connecting wallet...').start();
     const selectedWallet = await promptForWalletSelection(wallets);
 
     console.log(`Selected wallet: ${selectedWallet}`);
     spinner.succeed(
       chalk.green('Wallet connected: ') + chalk.blue(selectedWallet)
     );
-    spinner.start('Logging in...');
-    console.log(
-      chalk.yellow(`Please sign login message on your wallet...`)
+    spinner.start(
+      'Logging in...Please sign login message on your wallet..'
     );
+    // console.log(
+    //   chalk.yellow(`Please sign login message on your wallet...`)
+    // );
 
     await login(selectedWallet);
     spinner.succeed(chalk.green('Logged in successfully.'));
@@ -181,6 +194,9 @@ const setupScout = async () => {
     console.log(chalk.green('Selected NFT:') + ` ${selectedNFT}`);
 
     const { UID, api_key } = await fetchScoutDetails(selectedNFT);
+
+    console.log('UID: ', UID);
+    console.log('api_key: ', api_key);
 
     if (!checkDockerInstallation()) {
       console.log('Docker is not installed. Installing Docker...');
@@ -232,6 +248,8 @@ program
       await setupScout();
     } else if (selectedOption === 'view') {
       await viewScout();
+    } else if (selectedOption === 'exit') {
+      process.exit(0);
     }
   });
 

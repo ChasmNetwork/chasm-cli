@@ -19,9 +19,9 @@ export const installDocker = () => {
 };
 
 export const setupDocker = (containerName: string) => {
-  shell.exec('docker pull johnsonchasm/chasm-scout');
+  shell.exec('docker pull chasmtech/chasm-scout');
   shell.exec(
-    `docker run -d --restart=always --env-file ./.env -p 3001:3001 --name ${containerName} johnsonchasm/chasm-scout`
+    `docker run -d --restart=always --env-file ./.env.scout -p 3001:3001 --name ${containerName} chasmtech/chasm-scout`
   );
   console.log('Docker container has been set up successfully.');
 };
