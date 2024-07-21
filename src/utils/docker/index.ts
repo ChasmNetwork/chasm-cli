@@ -37,13 +37,14 @@ export const installDocker = async () => {
         stdio: 'inherit',
       });
     } else if (platform === 'linux') {
-      await execa('sudo', ['apt-get', 'update'], {
-        stdio: 'inherit',
-      });
+      // Step 1: Update existing list of packages
+      await execa('sudo', ['apt', 'update'], { stdio: 'inherit' });
+
+      // Step 2: Install prerequisite packages
       await execa(
         'sudo',
         [
-          'apt-get',
+          'apt',
           'install',
           '-y',
           'apt-transport-https',
@@ -51,10 +52,10 @@ export const installDocker = async () => {
           'curl',
           'software-properties-common',
         ],
-        {
-          stdio: 'inherit',
-        }
+        { stdio: 'inherit' }
       );
+
+      // Step 3: Add the GPG key for the official Docker repository to your system
       await execa(
         'curl',
         ['-fsSL', 'https://download.docker.com/linux/ubuntu/gpg'],
@@ -71,31 +72,30 @@ export const installDocker = async () => {
           { input: result.stdout }
         )
       );
-      await execa(
-        'bash',
-        [
-          '-c',
-          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
-        ],
-        { stdio: 'inherit' }
-      );
-      await execa('sudo', ['apt-get', 'update'], {
-        stdio: 'inherit',
-      });
+
+      // Step 4: Add the Docker repository to APT sources
       await execa(
         'sudo',
         [
-          'apt-get',
-          'install',
-          '-y',
-          'docker-ce',
-          'docker-ce-cli',
-          'containerd.io',
+          'sh',
+          '-c',
+          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list',
         ],
-        {
-          stdio: 'inherit',
-        }
+        { stdio: 'inherit' }
       );
+
+      // Step 5: Update the package database with the Docker packages from the newly added repo
+      await execa('sudo', ['apt', 'update'], { stdio: 'inherit' });
+
+      // Step 6: Install Docker
+      await execa('sudo', ['apt', 'install', '-y', 'docker-ce'], {
+        stdio: 'inherit',
+      });
+
+      // Step 7: Verify Docker installation
+      await execa('sudo', ['systemctl', 'status', 'docker'], {
+        stdio: 'inherit',
+      });
     }
   } catch (error) {
     console.error('Failed to install Docker:', error);
