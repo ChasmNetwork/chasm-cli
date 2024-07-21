@@ -56,22 +56,12 @@ export const installDocker = async () => {
       );
 
       // Step 3: Add the GPG key for the official Docker repository to your system
-      await execa(
-        'curl',
-        ['-fsSL', 'https://download.docker.com/linux/ubuntu/gpg'],
-        { stdio: 'inherit' }
-      ).then((result) =>
-        execa(
-          'sudo',
-          [
-            'gpg',
-            '--dearmor',
-            '-o',
-            '/usr/share/keyrings/docker-archive-keyring.gpg',
-          ],
-          { input: result.stdout }
-        )
-      );
+      await execa('curl', [
+        '-fsSL',
+        'https://download.docker.com/linux/ubuntu/gpg',
+        '-o',
+        '/usr/share/keyrings/docker-archive-keyring.gpg',
+      ]);
 
       // Step 4: Add the Docker repository to APT sources
       await execa(
