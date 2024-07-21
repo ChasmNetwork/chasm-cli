@@ -1,7 +1,6 @@
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import qrcode from 'qrcode-terminal';
-import axios from 'axios';
-import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
 import { provider } from '../wallet/index.js';
@@ -36,18 +35,31 @@ export const connectWallet = async () => {
 };
 
 const fetchLoginMessage = async (address: string) => {
-  const response = await axios.get(
+  const response = await fetch(
     `${BACKEND_URL}/login/message?address=${address}`
   );
-  return response.data.message;
+  const { message } = (await response.json()) as any;
+  return message;
 };
 
 const fetchJWT = async (address: string, signature: string) => {
-  const response = await axios.post(`${BACKEND_URL}/login`, {
-    address,
-    signature,
+  const response = await fetch(`${BACKEND_URL}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      address,
+      signature,
+    }),
   });
-  return response.data.token;
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch JWT: ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as any;
+  return data.token;
 };
 
 export const login = async (address: string) => {
@@ -69,7 +81,7 @@ export const fetchScoutDetails = async (scoutId: string) => {
     );
 
     // Make the GET request to the backend API
-    const response = await axios.get(
+    const response = await fetch(
       `${BACKEND_URL}/api/nodes/${scoutId}`,
       {
         headers: {
@@ -79,8 +91,7 @@ export const fetchScoutDetails = async (scoutId: string) => {
     );
 
     // Return the scout details
-    console.log('Scout details:', response.data);
-    return response.data;
+    return (await response.json()) as any;
   } catch (error: any) {
     console.error('Error fetching scout details:', error.message);
     throw new Error('Could not fetch scout details.');

@@ -3,13 +3,24 @@ import { execa } from 'execa';
 export const checkDockerInstallation = async () => {
   try {
     const { stdout } = await execa('docker', ['--version']);
-    console.log(`Docker version found: ${stdout}`);
-    return true;
-  } catch (error) {
-    console.error(
-      'Docker is not installed or not accessible:',
-      error
-    );
+    if (stdout.includes('Docker version')) {
+      return true;
+    } else {
+      console.log(
+        'Docker command executed, but no version information found.'
+      );
+      return false;
+    }
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      console.error('Docker is not installed.');
+    } else if (error.code === 'EACCES' || error.code === 'EPERM') {
+      console.error(
+        'Permission denied. Try running with elevated privileges.'
+      );
+    } else {
+      console.error('Error executing Docker command:', error);
+    }
     return false;
   }
 };

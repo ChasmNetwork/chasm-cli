@@ -29,9 +29,9 @@ build({
   external: [
     '@inquirer/prompts',
     '@walletconnect/ethereum-provider',
-    'axios',
-    'chalk',
-    'commander',
+    'node-fetch',
+    'kleur',
+    'yargs',
     'dotenv',
     'execa',
     'glob',

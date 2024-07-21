@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { confirm, input, select } from '@inquirer/prompts';
-import chalk from 'chalk';
+import kleur from 'kleur';
+import { underline } from 'kleur/colors';
 import fs from 'fs';
 import path from 'path';
 import {
@@ -29,10 +31,6 @@ import {
   startLocalTunnel,
 } from './utils/local.js';
 import { version } from '../package.json';
-
-const program = new Command();
-
-program.version(version).description('Chasm Node CLI');
 
 const promptForNFTSelection = async (
   nfts: { token_id: string; name: string }[]
@@ -82,11 +80,11 @@ const setupEnvFile = async (
   scoutUID: string,
   webhookApiKey: string
 ) => {
-  const scoutUidLink = chalk.blue.underline(
-    'https://scout.chasm.net/new-scout'
+  const scoutUidLink = underline(
+    kleur.blue('https://scout.chasm.net/new-scout')
   );
-  const webhookApiKeyLink = chalk.blue.underline(
-    'https://scout.chasm.net/new-scout'
+  const webhookApiKeyLink = underline(
+    kleur.blue('https://scout.chasm.net/new-scout')
   );
 
   let port = await input({
@@ -174,24 +172,21 @@ const setupScout = async () => {
 
     console.log(`Selected wallet: ${selectedWallet}`);
     spinner.succeed(
-      chalk.green('Wallet connected: ') + chalk.blue(selectedWallet)
+      kleur.green('Wallet connected: ') + kleur.blue(selectedWallet)
     );
     spinner.start(
       'Logging in...Please sign login message on your wallet..'
     );
-    // console.log(
-    //   chalk.yellow(`Please sign login message on your wallet...`)
-    // );
 
     await login(selectedWallet);
-    spinner.succeed(chalk.green('Logged in successfully.'));
+    spinner.succeed(kleur.green('Logged in successfully.'));
 
     spinner.start('Fetching NFTs...');
     const nfts = await fetchNFTs(selectedWallet);
-    spinner.succeed(chalk.green('NFTs fetched.'));
+    spinner.succeed(kleur.green('NFTs fetched.'));
 
     const selectedNFT = await promptForNFTSelection(nfts);
-    console.log(chalk.green('Selected NFT:') + ` ${selectedNFT}`);
+    console.log(kleur.green('Selected NFT:') + ` ${selectedNFT}`);
 
     const { UID, api_key } = await fetchScoutDetails(selectedNFT);
 
@@ -223,7 +218,7 @@ const setupScout = async () => {
         });
       }
     }
-    setupDocker(containerName);
+    await setupDocker(containerName);
   } catch (error) {
     console.error('Error during setup:', error);
   } finally {
@@ -235,22 +230,24 @@ const viewScout = async () => {
   console.log('View my scout functionality to be implemented...');
 };
 
-program
-  .command('setup')
-  .description('Set up Chasm Scout')
-  .action(async () => {
-    displayAsciiArt();
-    displayHeader();
+yargs(hideBin(process.argv))
+  .command(
+    'setup',
+    'Set up Chasm Scout',
+    () => {},
+    async () => {
+      displayAsciiArt();
+      displayHeader();
 
-    const selectedOption = await mainMenu();
+      const selectedOption = await mainMenu();
 
-    if (selectedOption === 'setup') {
-      await setupScout();
-    } else if (selectedOption === 'view') {
-      await viewScout();
-    } else if (selectedOption === 'exit') {
-      process.exit(0);
+      if (selectedOption === 'setup') {
+        await setupScout();
+      } else if (selectedOption === 'view') {
+        await viewScout();
+      } else if (selectedOption === 'exit') {
+        process.exit(0);
+      }
     }
-  });
-
-program.parse(process.argv);
+  )
+  .help().argv;

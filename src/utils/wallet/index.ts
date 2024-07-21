@@ -1,5 +1,4 @@
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
-import axios from 'axios';
 import qrcode from 'qrcode-terminal';
 import { Web3, ContractAbi } from 'web3';
 import fs from 'fs';
