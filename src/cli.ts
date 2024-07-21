@@ -193,9 +193,9 @@ const setupScout = async () => {
     console.log('UID: ', UID);
     console.log('api_key: ', api_key);
 
-    if (!checkDockerInstallation()) {
+    if (!(await checkDockerInstallation())) {
       console.log('Docker is not installed. Installing Docker...');
-      installDocker();
+      await installDocker(); // Make sure installDocker is also async
     } else {
       console.log('Docker is already installed.');
     }
@@ -210,7 +210,7 @@ const setupScout = async () => {
       });
 
       if (removeContainer) {
-        removeDockerContainer(containerName);
+        await removeDockerContainer(containerName);
       } else {
         containerName = await input({
           message: 'Enter a different container name:',
