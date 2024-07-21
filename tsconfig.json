@@ -1,19 +1,18 @@
 {
   "extends": "@tsconfig/node-lts/tsconfig.json",
-   "compilerOptions": {
+  "compilerOptions": {
     "lib": [
       "es2023"
     ],
     "outDir": "dist",
-    "module": "node16",
+    "module": "esnext", // Use "esnext" for ECMAScript module support
     "target": "es2022",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "node",
     "resolveJsonModule": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]
 }
-

@@ -1,11 +1,11 @@
 {
   "name": "chasm-cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "CLI tool for setting up Chasm Scout",
   "main": "dist/cli.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && cpx 'src/utils/ascii/ascii-art.txt' dist/utils/ascii",
+    "build": "tsc && node build.js && cpx 'src/utils/ascii/ascii-art.txt' dist/utils/ascii && cpx 'src/utils/ascii/ascii-art.txt' dist/",
     "start": "node dist/cli.js"
   },
   "bin": {

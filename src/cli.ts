@@ -28,11 +28,11 @@ import {
   installLocalTunnel,
   startLocalTunnel,
 } from './utils/local.js';
-import { config } from './config.js';
+import { version } from '../package.json';
 
 const program = new Command();
 
-program.version('1.0.0').description('Chasm Node CLI');
+program.version(version).description('Chasm Node CLI');
 
 const promptForNFTSelection = async (
   nfts: { token_id: string; name: string }[]
