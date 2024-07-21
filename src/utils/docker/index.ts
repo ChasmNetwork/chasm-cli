@@ -37,25 +37,26 @@ export const installDocker = async () => {
         stdio: 'inherit',
       });
     } else if (platform === 'linux') {
-      // Step 1: Update existing list of packages
-      await execa('sudo', ['apt', 'update'], { stdio: 'inherit' });
-
-      // Step 2: Install prerequisite packages
+      // Step 1: Update the apt package index and install packages to allow apt to use a repository over HTTPS:
+      await execa('sudo', ['apt-get', 'update'], {
+        stdio: 'inherit',
+      });
       await execa(
         'sudo',
         [
-          'apt',
+          'apt-get',
           'install',
           '-y',
-          'apt-transport-https',
           'ca-certificates',
           'curl',
-          'software-properties-common',
+          'gnupg',
+          'lsb-release',
         ],
         { stdio: 'inherit' }
       );
 
-      // Step 3: Add the GPG key for the official Docker repository to your system
+      // Step 2: Add Docker’s official GPG key:
+      await execa('sudo', ['mkdir', '-p', '/etc/apt/keyrings']);
       await execa('curl', [
         '-fsSL',
         'https://download.docker.com/linux/ubuntu/gpg',
@@ -63,27 +64,41 @@ export const installDocker = async () => {
         '/usr/share/keyrings/docker-archive-keyring.gpg',
       ]);
 
-      // Step 4: Add the Docker repository to APT sources
+      // Step 3: Use the following command to set up the stable repository:
+      const architecture = await execa('dpkg', [
+        '--print-architecture',
+      ]);
+      const codename = await execa('lsb_release', ['-cs']);
       await execa(
         'sudo',
         [
           'sh',
           '-c',
-          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list',
+          `echo "deb [arch=${architecture.stdout} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu ${codename.stdout} stable" > /etc/apt/sources.list.d/docker.list`,
         ],
         { stdio: 'inherit' }
       );
 
-      // Step 5: Update the package database with the Docker packages from the newly added repo
-      await execa('sudo', ['apt', 'update'], { stdio: 'inherit' });
-
-      // Step 6: Install Docker
-      await execa('sudo', ['apt', 'install', '-y', 'docker-ce'], {
+      // Step 4: Update the apt package index, and install the latest version of Docker Engine, containerd, and Docker Compose:
+      await execa('sudo', ['apt-get', 'update'], {
         stdio: 'inherit',
       });
+      await execa(
+        'sudo',
+        [
+          'apt-get',
+          'install',
+          '-y',
+          'docker-ce',
+          'docker-ce-cli',
+          'containerd.io',
+          'docker-compose-plugin',
+        ],
+        { stdio: 'inherit' }
+      );
 
-      // Step 7: Verify Docker installation
-      await execa('sudo', ['systemctl', 'status', 'docker'], {
+      // Step 5: Verify that Docker Engine is installed correctly by running the hello-world image:
+      await execa('sudo', ['docker', 'run', 'hello-world'], {
         stdio: 'inherit',
       });
     }
