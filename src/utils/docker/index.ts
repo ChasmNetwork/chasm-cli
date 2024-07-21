@@ -2,9 +2,14 @@ import { execa } from 'execa';
 
 export const checkDockerInstallation = async () => {
   try {
-    await execa('docker', ['--version']);
+    const { stdout } = await execa('docker', ['--version']);
+    console.log(`Docker version found: ${stdout}`);
     return true;
-  } catch {
+  } catch (error) {
+    console.error(
+      'Docker is not installed or not accessible:',
+      error
+    );
     return false;
   }
 };
@@ -24,9 +29,62 @@ export const installDocker = async () => {
       await execa('sudo', ['apt-get', 'update'], {
         stdio: 'inherit',
       });
-      await execa('sudo', ['apt-get', 'install', '-y', 'docker.io'], {
+      await execa(
+        'sudo',
+        [
+          'apt-get',
+          'install',
+          '-y',
+          'apt-transport-https',
+          'ca-certificates',
+          'curl',
+          'software-properties-common',
+        ],
+        {
+          stdio: 'inherit',
+        }
+      );
+      await execa(
+        'curl',
+        ['-fsSL', 'https://download.docker.com/linux/ubuntu/gpg'],
+        { stdio: 'inherit' }
+      ).then((result) =>
+        execa(
+          'sudo',
+          [
+            'gpg',
+            '--dearmor',
+            '-o',
+            '/usr/share/keyrings/docker-archive-keyring.gpg',
+          ],
+          { input: result.stdout }
+        )
+      );
+      await execa(
+        'bash',
+        [
+          '-c',
+          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
+        ],
+        { stdio: 'inherit' }
+      );
+      await execa('sudo', ['apt-get', 'update'], {
         stdio: 'inherit',
       });
+      await execa(
+        'sudo',
+        [
+          'apt-get',
+          'install',
+          '-y',
+          'docker-ce',
+          'docker-ce-cli',
+          'containerd.io',
+        ],
+        {
+          stdio: 'inherit',
+        }
+      );
     }
   } catch (error) {
     console.error('Failed to install Docker:', error);
