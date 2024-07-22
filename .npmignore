@@ -1,5 +1,9 @@
 node_modules
-dist
 .git
 .vscode
 .env
+.env.scout
+.env.sample
+src
+build.js
+tsconfig.json
