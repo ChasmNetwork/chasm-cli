@@ -43,6 +43,7 @@ export const installDocker = async () => {
         [
           'apt-get',
           'remove',
+          '-y',
           'docker.io',
           'docker-doc',
           'docker-compose',
@@ -71,36 +72,40 @@ export const installDocker = async () => {
         { stdio: 'inherit' }
       );
 
-      // Step 3: Add Docker’s official GPG key
-      await execa(
-        'sudo',
-        ['install', '-m', '0755', '-d', '/etc/apt/keyrings'],
-        { stdio: 'inherit' }
-      );
+      // Step 3: Import the Docker GPG key
       await execa(
         'sudo',
         [
-          'curl',
+          'apt-key',
+          'adv',
+          '--keyserver',
+          'hkp://keyserver.ubuntu.com:80',
+          '--recv-keys',
+          '7EA0A9C3F273FCD8',
+        ],
+        { stdio: 'inherit' }
+      );
+
+      // Step 4: Manually add the Docker repository
+      await execa(
+        'curl',
+        [
           '-fsSL',
           'https://download.docker.com/linux/ubuntu/gpg',
+          '|',
+          'sudo',
+          'gpg',
+          '--dearmor',
           '-o',
-          '/etc/apt/keyrings/docker.asc',
+          '/usr/share/keyrings/docker-archive-keyring.gpg',
         ],
         { stdio: 'inherit' }
       );
       await execa(
-        'sudo',
-        ['chmod', 'a+r', '/etc/apt/keyrings/docker.asc'],
-        { stdio: 'inherit' }
-      );
-
-      // Step 4: Add the Docker repository to APT sources
-      await execa(
-        'sudo',
+        'bash',
         [
-          'sh',
           '-c',
-          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list',
+          'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null',
         ],
         { stdio: 'inherit' }
       );
