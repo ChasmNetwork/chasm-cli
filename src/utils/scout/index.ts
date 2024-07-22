@@ -12,28 +12,6 @@ const BACKEND_URL = config.BACKEND_URL;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const connectWallet = async () => {
-  return new Promise<string>((resolve, reject) => {
-    provider.on('display_uri', (uri) => {
-      qrcode.generate(uri, { small: true }, (qrcode) => {
-        console.log(
-          `Scan this QR code to connect your wallet:\n${qrcode}`
-        );
-      });
-    });
-
-    provider.on('connect', (session) => {
-      resolve(provider.accounts[0]);
-    });
-
-    provider.on('disconnect', (error) => {
-      reject(error);
-    });
-
-    provider.connect().catch(reject);
-  });
-};
-
 const fetchLoginMessage = async (address: string) => {
   const response = await fetch(
     `${BACKEND_URL}/login/message?address=${address}`

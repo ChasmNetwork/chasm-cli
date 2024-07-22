@@ -1,12 +1,12 @@
 {
   "name": "chasm-cli",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "CLI tool for setting up Chasm Scout",
   "main": "dist/cli.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && node build.js && cpx 'src/utils/ascii/ascii-art.txt' dist/utils/ascii && cpx 'src/utils/ascii/ascii-art.txt' dist/",
-    "start": "node dist/cli.js"
+    "build": "bun tsc && node build.js",
+    "start": "bun dist/cli.js"
   },
   "bin": {
     "chasm": "./dist/cli.js"
@@ -14,10 +14,8 @@
   "dependencies": {
     "@inquirer/prompts": "^5.2.0",
     "@walletconnect/ethereum-provider": "^2.14.0",
-    "cpx2": "^7.0.1",
     "dotenv": "^16.4.5",
-    "execa": "^9.3.0",
-    "glob": "^11.0.0",
+    "execa": "^8.0.1",
     "kleur": "^4.1.5",
     "localtunnel": "^2.0.2",
     "node-fetch": "^3.3.2",
@@ -39,6 +37,7 @@
     "@types/qrcode-terminal": "^0.12.2",
     "@types/yargs": "^17.0.32",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "@types/bun": "latest"
   }
 }

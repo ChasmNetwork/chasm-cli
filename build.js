@@ -1,23 +1,31 @@
 import { build } from 'esbuild';
-import { sync as globSync } from 'glob';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
-// Copy non-TypeScript files (e.g., ASCII art)
-const copyFiles = () => {
-  const files = globSync('src/**/*.txt');
-  files.forEach((file) => {
-    const dest = file.replace('src', 'dist');
-    const destDir = path.dirname(dest);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    fs.copyFileSync(file, dest);
+const copyFile = (src, dest) => {
+  const destDir = path.dirname(dest);
+  if (!fs.existsSync(destDir)) {
+    fs.mkdirSync(destDir, { recursive: true });
+  }
+  fs.copyFileSync(src, dest);
+};
+
+const copyAsciiArt = () => {
+  const srcPath = 'src/utils/ascii/ascii-art.txt';
+  const destPaths = [
+    'dist/utils/ascii/ascii-art.txt',
+    'dist/ascii-art.txt',
+  ];
+
+  destPaths.forEach((dest) => {
+    copyFile(srcPath, dest);
   });
 };
 
-copyFiles();
+// Copy ascii-art.txt to both dist/utils/ascii and dist
+copyAsciiArt();
 
+// Build with esbuild
 build({
   entryPoints: ['src/cli.ts'],
   bundle: true,
@@ -34,7 +42,6 @@ build({
     'yargs',
     'dotenv',
     'execa',
-    'glob',
     'localtunnel',
     'ora',
     'qrcode-terminal',

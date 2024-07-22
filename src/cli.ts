@@ -2,7 +2,7 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { confirm, input, select } from '@inquirer/prompts';
+import { confirm, input, select, password } from '@inquirer/prompts';
 import kleur from 'kleur';
 import { underline } from 'kleur/colors';
 import fs from 'fs';
@@ -38,7 +38,7 @@ const promptForNFTSelection = async (
   nfts: { token_id: string; name: string }[]
 ) => {
   const choices = nfts.map((nft) => ({
-    name: `${nft.name} (Token ID: ${nft.token_id})`,
+    name: `${nft.name}`,
     value: nft.token_id,
   }));
   return await select({
@@ -94,45 +94,49 @@ const setupEnvFile = async (
     default: '3001',
   });
 
-  if (isPortInUse(parseInt(port))) {
-    const changePort = await confirm({
-      message: `Port ${port} is already in use. Would you like to enter a different port?`,
-      default: true,
-    });
-
-    if (changePort) {
-      port = await input({
-        message: 'Enter a different port:',
-        default: '3002',
-      });
-    } else {
-      console.log(
-        'Please make the port available and rerun the script.'
-      );
-      process.exit(0);
-    }
-  }
-
-  if (!(await isPortOpenToPublic(parseInt(port)))) {
-    const openFirewall = await confirm({
-      message: `Port ${port} is not open to the public. Would you like to open it in the firewall?`,
-      default: true,
-    });
-
-    if (openFirewall) {
-      await openFirewallPort(parseInt(port));
-    } else {
-      console.log(`Port ${port} is not open to the public. Exiting.`);
-      process.exit(0);
-    }
-  }
-
-  let webhookURL = `http://localhost:${port}`;
-
   const isLocal = await confirm({
     message: 'Are you setting this up on a local computer?',
     default: true,
   });
+
+  if (!isLocal) {
+    if (isPortInUse(parseInt(port))) {
+      const changePort = await confirm({
+        message: `Port ${port} is already in use. Would you like to enter a different port?`,
+        default: true,
+      });
+
+      if (changePort) {
+        port = await input({
+          message: 'Enter a different port:',
+          default: '3002',
+        });
+      } else {
+        console.log(
+          'Please make the port available and rerun the script.'
+        );
+        process.exit(0);
+      }
+    }
+
+    if (!(await isPortOpenToPublic(parseInt(port)))) {
+      const openFirewall = await confirm({
+        message: `Port ${port} is not open to the public. Would you like to open it in the firewall?`,
+        default: true,
+      });
+
+      if (openFirewall) {
+        await openFirewallPort(parseInt(port));
+      } else {
+        console.log(
+          `Port ${port} is not open to the public. Exiting.`
+        );
+        process.exit(0);
+      }
+    }
+  }
+
+  let webhookURL = `http://localhost:${port}`;
 
   if (isLocal) {
     installLocalTunnel();
@@ -141,7 +145,7 @@ const setupEnvFile = async (
   } else {
     const ipAddress = getPublicIPAddress();
     webhookURL = await input({
-      message: `Enter webhook URL (e.g. http://${ipAddress}:${port}):`,
+      message: `Enter webhook URL (suggestion: http://${ipAddress}:${port}):`,
       default: `http://${ipAddress}:${port}`,
     });
   }
@@ -151,7 +155,15 @@ const setupEnvFile = async (
     NODE_ENV: isLocal ? 'local' : 'production',
     LOGGER_LEVEL: 'debug',
     ORCHESTRATOR_URL: 'https://orchestrator.chasm.net/',
-    SCOUT_NAME: await input({ message: 'Enter scout name:' }),
+    SCOUT_NAME: await input({
+      message: 'Enter scout name:',
+      validate: function (input) {
+        if (input.trim() === '') {
+          return 'Scout name is required.';
+        }
+        return true;
+      },
+    }),
     SCOUT_UID: scoutUID,
     WEBHOOK_API_KEY: webhookApiKey,
     WEBHOOK_URL: webhookURL,
@@ -163,11 +175,22 @@ const setupEnvFile = async (
       message: 'Enter model:',
       default: 'gemma2-9b-it',
     }),
-    GROQ_API_KEY: await input({ message: 'Enter Groq API key:' }),
-    OPENROUTER_API_KEY: await input({
+    GROQ_API_KEY: await password({
+      message: 'Enter Groq API key:',
+      mask: '*',
+      validate: function (input) {
+        if (input.trim() === '') {
+          return 'Groq API key is required.';
+        }
+        return true;
+      },
+    }),
+    OPENROUTER_API_KEY: await password({
+      mask: '*',
       message: 'Enter Openrouter API key (optional):',
     }),
-    OPENAI_API_KEY: await input({
+    OPENAI_API_KEY: await password({
+      mask: '*',
       message: 'Enter OpenAI API key (optional):',
     }),
   };
