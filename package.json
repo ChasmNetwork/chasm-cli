@@ -1,6 +1,6 @@
 {
   "name": "chasm-cli",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "CLI tool for setting up Chasm Scout",
   "main": "dist/cli.js",
   "type": "module",

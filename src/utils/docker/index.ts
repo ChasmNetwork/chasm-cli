@@ -37,6 +37,23 @@ export const installDocker = async () => {
         stdio: 'inherit',
       });
     } else if (platform === 'linux') {
+      // Uninstall old versions
+      await execa(
+        'sudo',
+        [
+          'apt-get',
+          'remove',
+          'docker.io',
+          'docker-doc',
+          'docker-compose',
+          'docker-compose-v2',
+          'podman-docker',
+          'containerd',
+          'runc',
+        ],
+        { stdio: 'inherit' }
+      );
+
       // Step 1: Update existing list of packages
       await execa('sudo', ['apt', 'update'], { stdio: 'inherit' });
 
@@ -47,7 +64,6 @@ export const installDocker = async () => {
           'apt',
           'install',
           '-y',
-          'apt-transport-https',
           'ca-certificates',
           'curl',
           'software-properties-common',
@@ -55,22 +71,27 @@ export const installDocker = async () => {
         { stdio: 'inherit' }
       );
 
-      // Step 3: Add the GPG key for the official Docker repository
+      // Step 3: Add Docker’s official GPG key
       await execa(
-        'curl',
-        ['-fsSL', 'https://download.docker.com/linux/ubuntu/gpg'],
+        'sudo',
+        ['install', '-m', '0755', '-d', '/etc/apt/keyrings'],
         { stdio: 'inherit' }
-      ).then((result) =>
-        execa(
-          'sudo',
-          [
-            'gpg',
-            '--dearmor',
-            '-o',
-            '/usr/share/keyrings/docker-archive-keyring.gpg',
-          ],
-          { input: result.stdout }
-        )
+      );
+      await execa(
+        'sudo',
+        [
+          'curl',
+          '-fsSL',
+          'https://download.docker.com/linux/ubuntu/gpg',
+          '-o',
+          '/etc/apt/keyrings/docker.asc',
+        ],
+        { stdio: 'inherit' }
+      );
+      await execa(
+        'sudo',
+        ['chmod', 'a+r', '/etc/apt/keyrings/docker.asc'],
+        { stdio: 'inherit' }
       );
 
       // Step 4: Add the Docker repository to APT sources
@@ -79,7 +100,7 @@ export const installDocker = async () => {
         [
           'sh',
           '-c',
-          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list',
+          'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list',
         ],
         { stdio: 'inherit' }
       );
@@ -88,12 +109,23 @@ export const installDocker = async () => {
       await execa('sudo', ['apt', 'update'], { stdio: 'inherit' });
 
       // Step 6: Install Docker
-      await execa('sudo', ['apt', 'install', '-y', 'docker-ce'], {
-        stdio: 'inherit',
-      });
+      await execa(
+        'sudo',
+        [
+          'apt',
+          'install',
+          '-y',
+          'docker-ce',
+          'docker-ce-cli',
+          'containerd.io',
+          'docker-buildx-plugin',
+          'docker-compose-plugin',
+        ],
+        { stdio: 'inherit' }
+      );
 
       // Step 7: Verify Docker installation
-      await execa('sudo', ['systemctl', 'status', 'docker'], {
+      await execa('sudo', ['docker', 'run', 'hello-world'], {
         stdio: 'inherit',
       });
     }
