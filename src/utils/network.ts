@@ -1,5 +1,7 @@
 import { execSync } from 'child_process';
 import os from 'os';
+import net from 'net';
+import { execa } from 'execa';
 
 const checkCurlInstallation = (): boolean => {
   try {
@@ -57,5 +59,59 @@ export const stopProcessOnPort = (port: number): void => {
     }
   } catch (error) {
     console.error(`Error stopping process on port ${port}:`, error);
+  }
+};
+
+export const isPortOpenToPublic = async (
+  port: number
+): Promise<boolean> => {
+  try {
+    const ipAddress = getPublicIPAddress();
+    const socket = net.createConnection({ host: ipAddress, port });
+    return new Promise((resolve, reject) => {
+      socket.on('connect', () => {
+        socket.end();
+        resolve(true);
+      });
+      socket.on('error', () => {
+        socket.destroy();
+        resolve(false);
+      });
+    });
+  } catch (error) {
+    return false;
+  }
+};
+
+export const openFirewallPort = async (
+  port: number
+): Promise<void> => {
+  try {
+    const platform = os.platform();
+    if (platform === 'linux') {
+      await execa('sudo', ['ufw', 'allow', `${port}`], {
+        stdio: 'inherit',
+      });
+    } else if (platform === 'darwin') {
+      await execa('sudo', ['pfctl', '-f', '/etc/pf.conf'], {
+        stdio: 'inherit',
+      });
+      await execa('sudo', ['pfctl', '-e'], { stdio: 'inherit' });
+      await execa(
+        'sudo',
+        [
+          'echo',
+          `rdr pass on lo0 inet proto tcp from any to any port ${port} -> 127.0.0.1 port ${port}`,
+        ],
+        { stdio: 'inherit' }
+      );
+    } else {
+      console.error(
+        'Opening firewall ports is not supported on this platform.'
+      );
+    }
+    console.log(`Firewall rules updated to allow port ${port}`);
+  } catch (error) {
+    console.error(`Error opening firewall port ${port}:`, error);
   }
 };

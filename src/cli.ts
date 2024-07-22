@@ -25,6 +25,8 @@ import {
   getPublicIPAddress,
   isPortInUse,
   stopProcessOnPort,
+  isPortOpenToPublic,
+  openFirewallPort,
 } from './utils/network.js';
 import {
   installLocalTunnel,
@@ -93,23 +95,39 @@ const setupEnvFile = async (
   });
 
   if (isPortInUse(parseInt(port))) {
-    const stopProcess = await confirm({
-      message: `Port ${port} is already in use. Would you like to stop the process using this port?`,
+    const changePort = await confirm({
+      message: `Port ${port} is already in use. Would you like to enter a different port?`,
       default: true,
     });
 
-    if (stopProcess) {
-      stopProcessOnPort(parseInt(port));
-    } else {
+    if (changePort) {
       port = await input({
         message: 'Enter a different port:',
         default: '3002',
       });
+    } else {
+      console.log(
+        'Please make the port available and rerun the script.'
+      );
+      process.exit(0);
+    }
+  }
+
+  if (!(await isPortOpenToPublic(parseInt(port)))) {
+    const openFirewall = await confirm({
+      message: `Port ${port} is not open to the public. Would you like to open it in the firewall?`,
+      default: true,
+    });
+
+    if (openFirewall) {
+      await openFirewallPort(parseInt(port));
+    } else {
+      console.log(`Port ${port} is not open to the public. Exiting.`);
+      process.exit(0);
     }
   }
 
   let webhookURL = `http://localhost:${port}`;
-  const ipAddress = getPublicIPAddress();
 
   const isLocal = await confirm({
     message: 'Are you setting this up on a local computer?',
@@ -190,12 +208,15 @@ const setupScout = async () => {
 
     const { UID, api_key } = await fetchScoutDetails(selectedNFT);
 
-    console.log('UID: ', UID);
-    console.log('api_key: ', api_key);
-
     if (!(await checkDockerInstallation())) {
-      console.log('Docker is not installed. Installing Docker...');
-      await installDocker(); // Make sure installDocker is also async
+      console.log(
+        'Docker is not installed. Please install docker first using this guide: ',
+        underline(
+          kleur.blue('https://docs.docker.com/engine/install/ubuntu/')
+        )
+      );
+      process.exit();
+      // await installDocker(); // Make sure installDocker is also async
     } else {
       console.log('Docker is already installed.');
     }
