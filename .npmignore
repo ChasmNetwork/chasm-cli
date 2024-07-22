@@ -8,3 +8,4 @@ src
 build.js
 tsconfig.json
 bun.lockb
+.DS_Store

@@ -2,3 +2,4 @@
 .env.scout
 dist
 node_modules
+.DS_store
