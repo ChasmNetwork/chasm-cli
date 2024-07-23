@@ -152,7 +152,7 @@ const setupEnvFile = async (
 
   const answers = {
     PORT: port,
-    NODE_ENV: isLocal ? 'local' : 'production',
+    NODE_ENV: 'production',
     LOGGER_LEVEL: 'debug',
     ORCHESTRATOR_URL: 'https://orchestrator.chasm.net/',
     SCOUT_NAME: await input({
