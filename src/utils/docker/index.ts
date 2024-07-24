@@ -1,4 +1,6 @@
 import { execa } from 'execa';
+import ora from 'ora';
+import kleur from 'kleur';
 
 export const checkDockerInstallation = async () => {
   try {
@@ -141,28 +143,32 @@ export const installDocker = async () => {
 
 export const setupDocker = async (containerName: string) => {
   try {
-    await execa('docker', ['pull', 'chasmtech/chasm-scout'], {
-      stdio: 'inherit',
-    });
-    await execa(
-      'docker',
-      [
-        'run',
-        '-d',
-        '--restart=always',
-        '--env-file',
-        './.env.scout',
-        '-p',
-        '3001:3001',
-        '--name',
-        containerName,
-        'chasmtech/chasm-scout',
-      ],
-      { stdio: 'inherit' }
+    const spinner = ora('Pulling Docker image...').start();
+    const pullResult = await execa('docker', [
+      'pull',
+      'chasmtech/chasm-scout:latest',
+    ]);
+    spinner.succeed(kleur.green('Latest image pulled.'));
+    spinner.start('Running docker container...');
+    const runResult = await execa('docker', [
+      'run',
+      '-d',
+      '--restart=always',
+      '--env-file',
+      './.env.scout',
+      '-p',
+      '3001:3001',
+      '--name',
+      containerName,
+      'chasmtech/chasm-scout',
+    ]);
+    spinner.succeed(
+      kleur.green('Docker container has been set up successfully.')
     );
-    console.log('Docker container has been set up successfully.');
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to set up Docker container:', error);
+    if (error.stdout) console.error('Standard Output:', error.stdout);
+    if (error.stderr) console.error('Standard Error:', error.stderr);
   }
 };
 

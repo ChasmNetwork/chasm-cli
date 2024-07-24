@@ -138,17 +138,28 @@ const setupEnvFile = async (
 
   let webhookURL = `http://localhost:${port}`;
 
-  if (isLocal) {
-    installLocalTunnel();
-    const localTunnelURL = await startLocalTunnel(port);
-    webhookURL = localTunnelURL;
-  } else {
-    const ipAddress = getPublicIPAddress();
-    webhookURL = await input({
-      message: `Enter webhook URL (suggestion: http://${ipAddress}:${port}):`,
-      default: `http://${ipAddress}:${port}`,
-    });
-  }
+  // if (isLocal) {
+  //   installLocalTunnel();
+  //   const localTunnelURL = await startLocalTunnel(port);
+  //   webhookURL = localTunnelURL;
+  // } else {
+  //   const ipAddress = getPublicIPAddress();
+  //   webhookURL = await input({
+  //     message: `Enter webhook URL (suggestion: http://${ipAddress}:${port}):`,
+  //     default: `http://${ipAddress}:${port}`,
+  //   });
+  // }
+
+  // const ipAddress = getPublicIPAddress();
+  // webhookURL = await input({
+  //   message: `Enter webhook URL (suggestion: http://${ipAddress}:${port}):`,
+  //   default: `http://${ipAddress}:${port}`,
+  // });
+
+  webhookURL = await input({
+    message: `Enter webhook URL (suggestion: http://localhost:${port}):`,
+    default: `http://localhost:${port}`,
+  });
 
   const answers = {
     PORT: port,
