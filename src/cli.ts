@@ -305,4 +305,5 @@ yargs(hideBin(process.argv))
       }
     }
   )
+  .demandCommand(1, 'You need to specify a command (e.g., setup) to run the CLI.')
   .help().argv;
