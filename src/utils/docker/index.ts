@@ -195,9 +195,18 @@ export const removeDockerContainer = async (
   containerName: string
 ) => {
   try {
-    await execa('docker', ['rm', '-f', containerName], {
-      stdio: 'inherit',
-    });
+    console.log(
+      `Attempting to remove Docker container: ${containerName}`
+    );
+    const result = await execa(
+      'docker',
+      ['rm', '-f', containerName],
+      {
+        stdio: 'pipe',
+      }
+    );
+    console.log(`Command stdout: ${result.stdout}`);
+    console.log(`Command stderr: ${result.stderr}`);
     console.log(
       `Removed existing Docker container with name ${containerName}`
     );

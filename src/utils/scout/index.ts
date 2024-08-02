@@ -4,13 +4,16 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
 import { provider } from '../wallet/index.js';
-import { fileURLToPath } from 'url';
 import process from 'process';
 import { config } from '../../config.js';
 
 const BACKEND_URL = config.BACKEND_URL;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+// Resolve the paths relative to the current working directory
+const tokenPath = path.resolve(
+  process.cwd(),
+  'dist/utils/scout/token.txt'
+);
 
 const fetchLoginMessage = async (address: string) => {
   const response = await fetch(
@@ -41,22 +44,20 @@ const fetchJWT = async (address: string, signature: string) => {
 };
 
 export const login = async (address: string) => {
+  let providerEth = await provider();
   const message = await fetchLoginMessage(address);
-  const signature = await provider.request({
+  const signature = await providerEth.request({
     method: 'personal_sign',
     params: [message, address],
   });
   const token = await fetchJWT(address, signature as string);
-  fs.writeFileSync(path.join(__dirname, 'token.txt'), token);
+  fs.writeFileSync(tokenPath, token);
 };
 
 export const fetchScoutDetails = async (scoutId: string) => {
   try {
     // Read the JWT token from the file
-    const token = fs.readFileSync(
-      path.join(__dirname, 'token.txt'),
-      'utf8'
-    );
+    const token = fs.readFileSync(tokenPath, 'utf8');
 
     // Make the GET request to the backend API
     const response = await fetch(
