@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import yargs from 'yargs';
+import yargs, { command } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { select } from '@inquirer/prompts';
 
@@ -45,6 +45,7 @@ yargs(hideBin(process.argv))
     'Set up Chasm Scout',
     () => {},
     async () => {
+      console.clear();
       displayAsciiArt();
       displayHeader();
       await setup();

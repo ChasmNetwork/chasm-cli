@@ -1,6 +1,6 @@
 {
   "name": "chasm-cli",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "CLI tool for setting up Chasm Scout",
   "main": "dist/cli.js",
   "type": "module",
@@ -9,6 +9,13 @@
     "build-binary": "pkg dist/cli.js --targets node16-linux-x64 --output binaries/cli-linux && pkg dist/cli.js --targets node16-macos-x64 --output binaries/cli-macos && pkg dist/cli.js --targets node16-win-x64 --output binaries/cli-win.exe",
     "start": "node dist/cli.js"
   },
+  "files": [
+    "dist/ascii-art.txt",
+    "dist/cli.js",
+    "dist/utils/ascii/ascii-art.txt",
+    "package.json",
+    "README.md"
+  ],
   "bin": {
     "": "./dist/cli.js"
   },
