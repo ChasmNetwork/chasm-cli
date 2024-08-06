@@ -27,11 +27,11 @@ jobs:
       - name: Create tar.gz files
         run: |
           mkdir -p binaries/compressed
-          tar -czvf binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz -C binaries/linux/cli-linux-x64
-          tar -czvf binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz -C binaries/linux/cli-linux-arm64
-          tar -czvf binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz -C binaries/macos/cli-macos-arm64
-          tar -czvf binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz -C binaries/macos/cli-macos-x64
-          tar -czvf binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz -C binaries/windows/cli-windows-x64
+          tar -czvf binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz -C binaries/linux cli-linux-x64
+          tar -czvf binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz -C binaries/linux cli-linux-arm64
+          tar -czvf binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz -C binaries/macos cli-macos-arm64
+          tar -czvf binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz -C binaries/macos cli-macos-x64
+          tar -czvf binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz -C binaries/windows cli-windows-x64
 
       - name: Generate checksums
         run: |
