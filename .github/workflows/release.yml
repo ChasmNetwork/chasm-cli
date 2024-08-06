@@ -35,11 +35,15 @@ jobs:
 
       - name: Generate checksums
         run: |
-          shasum -a 256 binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz.sha256
-          shasum -a 256 binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz.sha256
-          shasum -a 256 binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz.sha256
-          shasum -a 256 binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz.sha256
-          shasum -a 256 binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256
+          cd binaries/compressed
+          for file in *; do
+            shasum -a 256 $file > $file.sha256
+          done
+
+      - name: Create a single checksum file
+        run: |
+          cd binaries/compressed
+          shasum -a 256 * > chasm-cli-${{ github.ref_name }}-checksums.txt
 
       - name: Create GitHub Release
         id: create_release

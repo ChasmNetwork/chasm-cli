@@ -34,10 +34,7 @@ const readPackageJson = async () => {
 const getDownloadUrl = (packageJson) => {
   const pkgName = packageJson.name;
   const version = packageJson.version;
-  const repo = packageJson.repository.url.replace(
-    /^.*github.com\//,
-    ''
-  );
+  const repo = packageJson.repository;
   const url = `https://github.com/${repo}/releases/download/v${version}/${pkgName}-${version}-${platform}-${arch}.tar.gz`;
   return url;
 };
@@ -46,10 +43,8 @@ const getDownloadUrl = (packageJson) => {
 const fetchAndParseCheckSumFile = async (packageJson) => {
   const version = packageJson.version;
   const pkgName = packageJson.name;
-  const repo = packageJson.repository.url.replace(
-    /^.*github.com\//,
-    ''
-  );
+  const repo = packageJson.repository;
+
   const checksumFileUrl = `https://github.com/${repo}/releases/download/v${version}/${pkgName}-${version}-checksums.txt`;
 
   // Fetch the checksum file
