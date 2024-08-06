@@ -18,6 +18,9 @@ jobs:
         with:
           bun-version: 'latest'
 
+      - name: Install dependancies
+        run: bun install
+
       - name: Build binaries
         run: npm run build-binaries
 
