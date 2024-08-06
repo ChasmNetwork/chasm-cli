@@ -2,8 +2,8 @@ import path from 'path';
 import fs from 'fs';
 import kleur from 'kleur';
 import { bold } from 'kleur/colors';
-import { version } from '../../../package.json';
 
+const version = '0.0.1';
 const asciiArt = `
                                             ......----......
                                     ...-++#################+-...
