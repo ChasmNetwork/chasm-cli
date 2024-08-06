@@ -31,7 +31,7 @@ jobs:
           tar -czvf binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz -C binaries/linux cli-linux-arm64
           tar -czvf binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz -C binaries/macos cli-macos-arm64
           tar -czvf binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz -C binaries/macos cli-macos-x64
-          tar -czvf binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz -C binaries/windows cli-windows-x64
+          tar -czvf binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz -C binaries/windows cli-windows-x64.exe
 
       - name: Generate checksums
         run: |
