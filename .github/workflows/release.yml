@@ -155,3 +155,13 @@ jobs:
           asset_path: binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256
           asset_name: chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256
           asset_content_type: text/plain
+
+      - name: Upload Single Checksum File
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-${{ github.ref_name }}-checksums.txt
+          asset_name: chasm-cli-${{ github.ref_name }}-checksums.txt
+          asset_content_type: text/plain
