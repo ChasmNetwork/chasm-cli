@@ -18,9 +18,6 @@ jobs:
         with:
           bun-version: 'latest'
 
-      - name: Build project
-        run: bun build
-
       - name: Build binaries
         run: npm run build-binaries
 
