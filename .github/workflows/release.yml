@@ -45,6 +45,14 @@ jobs:
         run: |
           cat binaries/compressed/*.sha256 > binaries/compressed/chasm-cli-${{ github.ref_name }}-checksums.txt
 
+      - name: Create symlinks for latest tarballs
+        run: |
+          ln -sf chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz binaries/compressed/chasm-cli-linux-x64-latest.tar.gz
+          ln -sf chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz binaries/compressed/chasm-cli-linux-arm64-latest.tar.gz
+          ln -sf chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz binaries/compressed/chasm-cli-darwin-arm64-latest.tar.gz
+          ln -sf chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz binaries/compressed/chasm-cli-darwin-x64-latest.tar.gz
+          ln -sf chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz binaries/compressed/chasm-cli-windows-x64-latest.tar.gz
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
