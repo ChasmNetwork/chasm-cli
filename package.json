@@ -5,17 +5,10 @@
   "main": "dist/cli.js",
   "type": "module",
   "scripts": {
-    "build": "npx tsc && node build.js",
-    "build-binary": "pkg dist/cli.js --targets node16-linux-x64 --output binaries/cli-linux && pkg dist/cli.js --targets node16-macos-x64 --output binaries/cli-macos && pkg dist/cli.js --targets node16-win-x64 --output binaries/cli-win.exe",
-    "start": "node dist/cli.js"
+    "build": "bun tsc && node build.js",
+    "build-binaries": "bun build --compile --minify --sourcemap --target=bun-windows-x64-baseline ./src/cli.ts --outfile binaries/windows/cli-windows-x64 && bun build --compile --minify --sourcemap --target=bun-linux-x64-baseline ./src/cli.ts --outfile binaries/linux/cli-linux-x64 && bun build --compile --minify --sourcemap --target=bun-linux-arm64 ./src/cli.ts --outfile binaries/linux/cli-linux-arm64  && bun build --compile --minify --sourcemap --target=bun-darwin-arm64 ./src/cli.ts --outfile binaries/macos/cli-macos-arm64 && bun build --compile --minify --sourcemap --target=bun-darwin-x64 ./src/cli.ts --outfile binaries/macos/cli-macos-x64",
+    "start": "bun dist/cli.js"
   },
-  "files": [
-    "dist/ascii-art.txt",
-    "dist/cli.js",
-    "dist/utils/ascii/ascii-art.txt",
-    "package.json",
-    "README.md"
-  ],
   "bin": {
     "": "./dist/cli.js"
   },

@@ -1,0 +1,29 @@
+{
+  "name": "chasm-cli",
+  "version": "0.0.1",
+  "description": "Chasm CLI",
+  "repository": "ChasmNetwork/chasm-cli",
+  "homepage": "",
+  "bugs": "https://github.com/ChasmNetwork/chasm-cli/issues",
+  "license": "MIT",
+  "author": "Chasm",
+  "type": "module",
+  "engines": {
+    "npm": ">=8"
+  },
+  "files": [
+    "scripts"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "bin": {
+    "chasm-cli": "bin/chasm-cli"
+  },
+  "dependencies": {
+    "bin-links": "^4.0.3",
+    "https-proxy-agent": "^7.0.2",
+    "node-fetch": "^3.3.2",
+    "tar": "7.4.3"
+  }
+}

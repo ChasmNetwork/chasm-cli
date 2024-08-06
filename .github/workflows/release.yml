@@ -1,0 +1,153 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 'latest'
+
+      - name: Build project
+        run: bun build
+
+      - name: Build binaries
+        run: npm run build-binaries
+
+      - name: Create tar.gz files
+        run: |
+          mkdir -p binaries/compressed
+          tar -czvf binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz -C binaries/linux/cli-linux-x64
+          tar -czvf binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz -C binaries/linux/cli-linux-arm64
+          tar -czvf binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz -C binaries/macos/cli-macos-arm64
+          tar -czvf binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz -C binaries/macos/cli-macos-x64
+          tar -czvf binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz -C binaries/windows/cli-windows-x64
+
+      - name: Generate checksums
+        run: |
+          shasum -a 256 binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz.sha256
+          shasum -a 256 binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz.sha256
+          shasum -a 256 binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz.sha256
+          shasum -a 256 binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz.sha256
+          shasum -a 256 binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz > binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz
+          asset_name: chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Assets (Checksum)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz.sha256
+          asset_name: chasm-cli-linux-x64-${{ github.ref_name }}.tar.gz.sha256
+          asset_content_type: text/plain
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz
+          asset_name: chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Assets (Checksum)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz.sha256
+          asset_name: chasm-cli-linux-arm64-${{ github.ref_name }}.tar.gz.sha256
+          asset_content_type: text/plain
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz
+          asset_name: chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Assets (Checksum)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz.sha256
+          asset_name: chasm-cli-darwin-arm64-${{ github.ref_name }}.tar.gz.sha256
+          asset_content_type: text/plain
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz
+          asset_name: chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Assets (Checksum)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz.sha256
+          asset_name: chasm-cli-darwin-x64-${{ github.ref_name }}.tar.gz.sha256
+          asset_content_type: text/plain
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz
+          asset_name: chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Assets (Checksum)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256
+          asset_name: chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256
+          asset_content_type: text/plain
