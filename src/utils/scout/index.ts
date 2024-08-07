@@ -1,19 +1,13 @@
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import qrcode from 'qrcode-terminal';
 import fetch from 'node-fetch';
-import fs from 'fs';
-import path from 'path';
 import { provider } from '../wallet/index.js';
-import process from 'process';
 import { config } from '../../config.js';
 
 const BACKEND_URL = config.BACKEND_URL;
 
-// Resolve the paths relative to the current working directory
-const tokenPath = path.resolve(
-  process.cwd(),
-  'dist/utils/scout/token.txt'
-);
+// In-memory storage for the token
+let token: string | null = null;
 
 const fetchLoginMessage = async (address: string) => {
   const response = await fetch(
@@ -49,14 +43,16 @@ export const login = async (address: string) => {
     method: 'personal_sign',
     params: [message, address],
   });
-  const token = await fetchJWT(address, signature as string);
-  fs.writeFileSync(tokenPath, token);
+  token = await fetchJWT(address, signature as string);
+  console.log('Logged in successfully, token stored in memory.');
 };
 
 export const fetchScoutDetails = async (scoutId: string) => {
   try {
-    // Read the JWT token from the file
-    const token = fs.readFileSync(tokenPath, 'utf8');
+    // Check if the token is available
+    if (!token) {
+      throw new Error('Token not found. Please log in first.');
+    }
 
     // Make the GET request to the backend API
     const response = await fetch(

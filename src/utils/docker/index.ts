@@ -143,7 +143,13 @@ export const installDocker = async () => {
 
 export const setupDocker = async (containerName: string) => {
   try {
-    const spinner = ora('Pulling Docker image...').start();
+    const spinner = ora({
+      text: 'Pulling Docker image...',
+      spinner: {
+        interval: 80,
+        frames: ['-', '\\', '|', '/'],
+      },
+    }).start();
     const pullResult = await execa('docker', [
       'pull',
       'chasmtech/chasm-scout:latest',
