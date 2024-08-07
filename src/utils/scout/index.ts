@@ -44,9 +44,8 @@ const fetchJWT = async (address: string, signature: string) => {
 };
 
 export const login = async (address: string) => {
-  let providerEth = await provider();
   const message = await fetchLoginMessage(address);
-  const signature = await providerEth.request({
+  const signature = await provider.request({
     method: 'personal_sign',
     params: [message, address],
   });

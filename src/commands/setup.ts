@@ -19,7 +19,13 @@ import ora from 'ora';
 export const setup = async () => {
   try {
     const wallets: any = await connectWallet();
-    const spinner = ora('Connecting wallet...').start();
+    const spinner = ora({
+      text: 'Connecting wallet...',
+      spinner: {
+        interval: 80,
+        frames: ['-', '\\', '|', '/'],
+      },
+    }).start();
     const selectedWallet = await promptForWalletSelection(wallets);
 
     console.log(`Selected wallet: ${selectedWallet}`);

@@ -6,18 +6,17 @@ import path from 'path';
 import { abi as ScoutABI } from '../../abi/ChasmScout.abi.js';
 import { config } from '../../config.js';
 
-export const provider = async () =>
-  await EthereumProvider.init({
-    projectId: config.PROJECT_ID!,
-    metadata: {
-      name: 'Chasm CLI',
-      description: 'CLI for Chasm Node',
-      url: 'https://scout.chasm.net',
-      icons: ['https://www.chasm.net/logo.png'],
-    },
-    showQrModal: false,
-    optionalChains: [1, 56, 5000],
-  });
+export const provider = await EthereumProvider.init({
+  projectId: config.PROJECT_ID!,
+  metadata: {
+    name: 'Chasm CLI',
+    description: 'CLI for Chasm Node',
+    url: 'https://scout.chasm.net',
+    icons: ['https://www.chasm.net/logo.png'],
+  },
+  showQrModal: false,
+  optionalChains: [1, 56, 5000],
+});
 
 function importJsonFile(filePath: string): object {
   const absolutePath = path.resolve(__dirname, filePath);
@@ -31,9 +30,8 @@ function importJsonFile(filePath: string): object {
 }
 
 export const connectWallet = async () => {
-  let providerEth = await provider();
   return new Promise((resolve, reject) => {
-    providerEth.on('display_uri', (uri) => {
+    provider.on('display_uri', (uri) => {
       qrcode.generate(uri, { small: true }, (qrcode) => {
         console.log(
           `Scan this QR code to connect your wallet:\n${qrcode}`
@@ -41,15 +39,15 @@ export const connectWallet = async () => {
       });
     });
 
-    providerEth.on('connect', (session) => {
-      resolve(providerEth.accounts);
+    provider.on('connect', (session) => {
+      resolve(provider.accounts);
     });
 
-    providerEth.on('disconnect', (error) => {
+    provider.on('disconnect', (error) => {
       reject(error);
     });
 
-    providerEth.connect().catch(reject);
+    provider.connect().catch(reject);
   });
 };
 
