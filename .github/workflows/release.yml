@@ -173,3 +173,15 @@ jobs:
           asset_path: binaries/compressed/chasm-cli-${{ github.ref_name }}-checksums.txt
           asset_name: chasm-cli-${{ github.ref_name }}-checksums.txt
           asset_content_type: text/plain
+
+      - name: Update version and checksum in nuspec
+        run: |
+          VERSION=${{ github.ref_name }}
+          CHECKSUM=$(cat binaries/compressed/chasm-cli-windows-x64-${{ github.ref_name }}.tar.gz.sha256 | awk '{print $1}')
+          sed -i "s/<version>.*<\/version>/<version>$VERSION<\/version>/" choco-package/chasm-cli.nuspec
+          sed -i "s/sha256=\".*\"/sha256=\"$CHECKSUM\"/" choco-package/chasm-cli.nuspec
+
+      - name: Generate and publish Chocolatey package
+        run: |
+          choco pack choco-package/chasm-cli.nuspec
+          choco push choco-package/chasm-cli.*.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}

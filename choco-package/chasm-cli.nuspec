@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>chasm-cli</id>
+    <version>0.0.1</version>
+    <title>Chasm CLI</title>
+    <authors>Chasm</authors>
+    <owners>Chasm</owners>
+    <description>Chasm CLI tool for interacting with Chasm network.</description>
+    <summary>Chasm CLI</summary>
+    <tags>chasm cli</tags>
+    <projectUrl>https://github.com/ChasmNetwork/chasm-cli</projectUrl>
+    <licenseUrl>https://github.com/ChasmNetwork/chasm-cli/blob/main/LICENSE</licenseUrl>
+  </metadata>
+  <files>
+    <file src="tools\**\*" target="tools" />
+  </files>
+</package>
