@@ -3,7 +3,7 @@ import fs from 'fs';
 import kleur from 'kleur';
 import { bold } from 'kleur/colors';
 
-const version = '0.0.1';
+export const version = '0.0.1';
 const asciiArt = `
                                             ......----......
                                     ...-++#################+-...
