@@ -47,21 +47,21 @@ export const setupEnvFile = async (
       }
     }
 
-    if (!(await isPortOpenToPublic(parseInt(port)))) {
-      const openFirewall = await confirm({
-        message: `Port ${port} is not open to the public. Would you like to open it in the firewall?`,
-        default: true,
-      });
+    // if (!(await isPortOpenToPublic(parseInt(port)))) {
+    //   const openFirewall = await confirm({
+    //     message: `Port ${port} is not open to the public. Would you like to open it in the firewall?`,
+    //     default: true,
+    //   });
 
-      if (openFirewall) {
-        await openFirewallPort(parseInt(port));
-      } else {
-        console.log(
-          `Port ${port} is not open to the public. Exiting.`
-        );
-        process.exit(0);
-      }
-    }
+    //   if (openFirewall) {
+    //     await openFirewallPort(parseInt(port));
+    //   } else {
+    //     console.log(
+    //       `Port ${port} is not open to the public. Exiting.`
+    //     );
+    //     process.exit(0);
+    //   }
+    // }
   }
 
   let webhookURL = `http://localhost:${port}`;

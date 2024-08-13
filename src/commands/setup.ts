@@ -49,7 +49,7 @@ export const setup = async () => {
     const { UID, api_key } = await fetchScoutDetails(selectedNFT);
 
     if (!(await checkDockerInstallation())) {
-      console.log(
+      console.error(
         'Docker is not installed. Please install docker first using this guide: ',
         kleur
           .blue()
@@ -82,7 +82,7 @@ export const setup = async () => {
     }
     await setupDocker(containerName);
   } catch (error) {
-    console.error('Error during setup:', error);
+    console.error('Error during setup, please try again');
   } finally {
     process.exit(0);
   }

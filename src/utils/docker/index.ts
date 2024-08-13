@@ -2,6 +2,32 @@ import { execa } from 'execa';
 import ora from 'ora';
 import kleur from 'kleur';
 
+// export const checkDockerInstallation = async () => {
+//   try {
+//     const { stdout } = await execa('docker', ['--version']);
+//     if (stdout.includes('Docker version')) {
+//       return true;
+//     } else {
+//       console.log(
+//         'Docker command executed, but no version information found.'
+//       );
+//       return false;
+//     }
+//   } catch (error: any) {
+//     if (error.code === 'ENOENT') {
+//       console.error('Docker is not installed.');
+//     } else if (error.code === 'EACCES' || error.code === 'EPERM') {
+//       console.error(
+//         'Permission denied. Try running with elevated privileges.'
+//       );
+//     } else if (error.code === 'ERR_INVALID_ARG_TYPE') {
+//     } else {
+//       console.error('Error executing Docker command:', error);
+//     }
+//     return false;
+//   }
+// };
+
 export const checkDockerInstallation = async () => {
   try {
     const { stdout } = await execa('docker', ['--version']);
@@ -14,15 +40,6 @@ export const checkDockerInstallation = async () => {
       return false;
     }
   } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      console.error('Docker is not installed.');
-    } else if (error.code === 'EACCES' || error.code === 'EPERM') {
-      console.error(
-        'Permission denied. Try running with elevated privileges.'
-      );
-    } else {
-      console.error('Error executing Docker command:', error);
-    }
     return false;
   }
 };
